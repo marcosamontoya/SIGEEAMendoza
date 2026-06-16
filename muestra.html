@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paneles para las Muestras....</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#0b1a2a;color:#fff;font-family:Arial}
+#mapa{position:fixed;inset:0}
+#BotonEventos{
+	position:fixed;
+	bottom:20px;left:50%;
+	transform:translateX(-50%);
+	background:#002b5c;
+	color:#4ffcff;
+	display: inline-block;
+	width: auto;
+	padding:14px 26px;
+	border-radius:30px;
+	font-size:16px;
+	font-weight:bold;
+	border:none;
+	cursor:pointer;
+	box-shadow:0 0 12px rgba(79,252,255,.6);
+	z-index:1000;
+}
+#PanelEventos{
+	position:fixed;
+	bottom:0;
+	left:50%;
+	transform:translate(-50%,100%);
+	width:92%;
+	max-width:420px;
+	background:#06162a;
+	border-radius:18px 18px 0 0;
+	padding:16px;
+	transition:.6s;
+	z-index:999
+}
+#PanelEventos.abierto{transform:translate(-50%,-80px)}
+select,button{
+	width:100%;
+	padding:12px;
+	margin:6px 0;
+	border-radius:12px;
+	border:none
+}
+.evento-btn{
+	background:linear-gradient(135deg,#0a84ff,#00c6ff);
+	color:#fff
+}
+#BotonStands{
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-block;
+    width: auto;
+    background: #002b5c;
+    color: #4ffcff;
+    padding: 14px 26px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(79,252,255,.6);
+    z-index: 1000;
+}
+#PanelStands{
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%,-100%);
+    width: 92%;
+    max-width: 420px;
+    background: #06162a;
+    border-radius: 0 0 18px 18px;
+    padding: 16px;
+    transition: .6s;
+    z-index: 999;
+}
+#PanelStands.abierto{
+    transform: translate(-50%,80px);
+}
+#BuscadorStands{
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: none;
+	box-sizing: border-box;
+}
+.stand-btn{
+    width: 100%;
+    margin: 6px 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg,#ff7a00,#ffb347);
+    color: #000;
+    font-weight: bold;
+}
+#modal{
+	position:fixed;
+	inset:0;
+	background:rgba(0,0,0,.7);
+	display:none;
+	align-items:center;
+	justify-content:center;
+	z-index:2000
+}
+#modalBox{
+	background:#06162a;
+	padding:20px;
+	border-radius:16px;
+	width:90%;
+	max-width:360px;
+	text-align:center
+}
+#contador{color:#4ffcff}
+#listaEventos{
+    max-height: 260px;        /* ~5 botones */
+    overflow-y: auto;
+    padding-right: 6px;       /* evita tapar scroll */
+}
+#listaStands{
+    max-height: 260px;        /* ~5 botones */
+    overflow-y: auto;
+    padding-right: 6px;
+}
+#listaEventos,
+#listaStands{
+    -webkit-overflow-scrolling: touch;
+}
+#avisoAlarma{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  z-index:9999;
+  font-size:1.4em;
+  cursor:pointer;
+}
+#modalInfo{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:3000;
+}
+.modalInfoBox{
+  background:#06162a;
+  padding:24px;
+  border-radius:18px;
+  width:90%;
+  max-width:340px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(79,252,255,.4);
+}
+.modalInfoBox p{
+  margin-bottom:20px;
+  font-size:1.1em;
+}
+.modalInfoBox button{
+  padding:10px 20px;
+  border-radius:12px;
+  border:none;
+  font-weight:bold;
+  background:#4ffcff;
+  color:#000;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div id="mapa"></div>
+<button id="BotonEventos">PANEL DE EVENTOS</button>
+<button id="BotonStands">PANEL DE STANDS</button>
+<div id="PanelEventos">
+	<select id="filtroDia"></select>
+	<div id="listaEventos"></div>
+</div>
+<div id="PanelStands">
+	<input id="BuscadorStands" type="text" placeholder="🔍 Buscar stand...">
+	<div id="listaStands"></div>
+</div>
+<div id="modal">
+	<div id="modalBox">
+		<h3 id="vEvento"></h3>
+		<p id="vLugar"></p>
+		<p>🕒 <span id="vHora"></span></p>
+		<p id="contador"></p>
+		<button onclick="abrirMapa()">📍 Ver mapa</button>
+		<button id="btnEvento" onclick="guardarEventoYAlarma()">📅 Guardar evento + 🔔 Alarma</button>
+		<button onclick="detenerAlarma()">⛔ Detener alarma</button>
+		<button onclick="cerrarModal()">❌ Cerrar</button>
+	</div>
+</div>
+<div id="modalInfo">
+  <div class="modalInfoBox">
+    <p id="modalInfoTexto"></p>
+    <button onclick="cerrarModalInfo()">OK</button>
+  </div>
+</div>
+<audio id="audio" src="sonidos/alarma.mp3" loop></audio>
+<script src="eventosmuestra.txt"></script>
+<script src="stands.txt"></script>
+<script>
+	const BotonStands = document.getElementById("BotonStands");
+	const BotonEventos = document.getElementById("BotonEventos");
+	const PanelStands = document.getElementById("PanelStands");
+	const PanelEventos = document.getElementById("PanelEventos");
+	const listaStands = document.getElementById("listaStands");
+	const buscadorStands = document.getElementById("BuscadorStands");
+	const audio = document.getElementById("audio");
+	let alarmaInterval = null;
+	let alarmaActiva = false;
+	/* ===== SERVICE WORKER (OFFLINE) ===== */
+	if(location.protocol !== "file:" && 'serviceWorker' in navigator){
+		navigator.serviceWorker.register('sw.js');
+	};
+
+	/* ===== NOTIFICACIONES ===== */
+	if("Notification" in window){
+		Notification.requestPermission();
+	};
+
+	/* ===== UTIL ===== */
+	function parseFecha(d, h){
+		const partes = d.split("-");
+		const dd = Number(partes[0]);
+		const mm = Number(partes[1]) - 1;
+		const yy = partes[2] ? Number(partes[2]) : new Date().getFullYear() - 2000;
+		const [hh, mi] = h.split(":").map(Number);
+		return new Date(2000 + yy, mm, dd, hh, mi).getTime();
+	};
+
+	function eventoNoPaso(e){
+		const ahora = Date.now();
+		const ts = parseFecha(e.dia, e.hora);
+		return ts > ahora;
+	};
+
+	/* ===== MAPA ===== */
+	let mapa=L.map("mapa").setView([-32.9,-68.85],12);
+	L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapa);
+	let routing,markerU,markerE;
+
+	BotonEventos.onclick = () => {
+	  if (!panelesHabilitados()) return;
+	  mostrarModalInfo("📅 Aquí podés ver los eventos disponibles y sus horarios.");
+	  PanelEventos.classList.toggle("abierto");
+	  PanelStands.classList.remove("abierto");
+	};
+
+	/* ===== EVENTOS ===== */
+	function eventosValidos(){
+		const ahora = Date.now();
+		const TOLERANCIA = 15 * 60 * 1000; // 15 minutos
+		return eventosmuestra
+		.map(e => ({ ...e, _ts: parseFecha(e.dia, e.hora) }))
+		.filter(e => !isNaN(e._ts) && e._ts >= ahora - TOLERANCIA)
+		.sort((a, b) => a._ts - b._ts);
+	};
+
+	function cargarDias(){
+		filtroDia.innerHTML = '<option value="">📅 Todos</option>';
+		[...new Set(eventosValidos().map(e=>e.dia))]
+		.forEach(dia=>{
+		const opt = document.createElement("option");
+		opt.value = dia;                 // valor real
+		opt.textContent = etiquetaFecha(dia); // texto amigable
+		filtroDia.appendChild(opt);
+		});
+	};
+
+	function renderLista(){
+		listaEventos.innerHTML="";
+		eventosValidos()
+		.filter(e=>!filtroDia.value||e.dia===filtroDia.value)
+		.forEach(e=>{
+		const b=document.createElement("button");
+		b.className="evento-btn";
+		b.textContent=`${e.dia} - ${e.evento} (${e.hora})`;
+		b.onclick=()=>abrirModal(e);
+		listaEventos.appendChild(b);
+		});
+	};
+
+	/* ===== MODAL ===== */
+	let eventoActivo,contadorInt;
+	function abrirModal(e){
+		eventoActivo = e;
+		vEvento.textContent = e.evento;
+		vLugar.textContent  = e.lugar;
+		vHora.textContent   = e.hora;
+		// === CONTROL DEL BOTÓN DE ALARMA ===
+		const btn = document.getElementById("btnEvento");
+		if (eventoNoPaso(e)) {
+			btn.style.display = "block";
+			btn.disabled = false;
+			btn.textContent = "📅 Guardar evento + 🔔 Alarma";
+		} else {
+			btn.style.display = "none"; // 👈 desaparece si ya pasó
+		}
+		modal.style.display = "flex";
+		iniciarContador();
+	};
+
+	function cerrarModal(){modal.style.display="none";clearInterval(contadorInt)};
+
+	/* ===== CONTADOR ===== */
+	function iniciarContador(){
+		clearInterval(contadorInt);
+		contadorInt=setInterval(()=>{
+		const d=parseFecha(eventoActivo.dia,eventoActivo.hora)-Date.now();
+		contador.textContent=d<=0?"⏰ En curso":`⏳ ${Math.floor(d/60000)}m ${Math.floor(d%60000/1000)}s`;
+		},1000);
+	};
+
+	/* ===== RUTA ===== */
+	function trazarRuta(){
+		navigator.geolocation.getCurrentPosition(p=>{
+		const [latE,lngE]=eventoActivo.coordenadas.split(",").map(Number);
+		const latU=p.coords.latitude,lngU=p.coords.longitude;
+		if(markerU)markerU.remove();
+		if(markerE)markerE.remove();
+		if(routing)mapa.removeControl(routing);
+		markerU=L.marker([latU,lngU]).addTo(mapa);
+		markerE=L.marker([latE,lngE]).addTo(mapa);
+		routing=L.Routing.control({
+		waypoints:[L.latLng(latU,lngU),L.latLng(latE,lngE)],
+		addWaypoints:false,show:false,language:"es"
+		}).addTo(mapa);
+		mapa.fitBounds([[latU,lngU],[latE,lngE]],{padding:[30,30]});
+		});
+	};
+
+	function abrirMapa(){
+		cerrarModal();
+		navigator.geolocation.getCurrentPosition(p => {
+			const [latE, lngE] = eventoActivo.coordenadas.split(",").map(Number);
+			const latU = p.coords.latitude;
+			const lngU = p.coords.longitude;
+			if (markerU) markerU.remove();
+			if (markerE) markerE.remove();
+			if (routing) mapa.removeControl(routing);
+			markerU = L.marker([latU, lngU]).addTo(mapa)
+				.bindPopup("📍 Tu ubicación")
+				.openPopup();
+			markerE = L.marker([latE, lngE]).addTo(mapa)
+				.bindPopup(`<b>${eventoActivo.evento}</b><br>${eventoActivo.lugar}`)
+				.openPopup();
+			routing = L.Routing.control({
+				waypoints: [
+					L.latLng(latU, lngU),
+					L.latLng(latE, lngE)
+				],
+				addWaypoints: false,
+				show: false,
+				language: "es"
+			}).addTo(mapa);
+			mapa.fitBounds([[latU, lngU],[latE, lngE]], { padding:[40,40] });
+		});
+	};
+	
+	/* ===== GOOGLE CALENDAR ===== */
+	function crearCalendar(){
+		const [d,m,y] = eventoActivo.dia.split("-");
+		const [hh,mm] = eventoActivo.hora.split(":");
+		const fechaIni = new Date(2000 + parseInt(y), m-1, d, hh, mm, 0);
+		const fechaFin = new Date(fechaIni.getTime() + 30 * 60000);
+		function fmt(f){
+			return f.getFullYear() +
+			String(f.getMonth()+1).padStart(2,"0") +
+			String(f.getDate()).padStart(2,"0") + "T" +
+			String(f.getHours()).padStart(2,"0") +
+			String(f.getMinutes()).padStart(2,"0") +
+			"00";
+		};
+		const ini = fmt(fechaIni);
+		const fin = fmt(fechaFin);
+		const url =
+			"https://www.google.com/calendar/render?action=TEMPLATE" +
+			"&text=" + encodeURIComponent(eventoActivo.evento) +
+			"&details=" + encodeURIComponent(eventoActivo.lugar) +
+			"&location=" + encodeURIComponent(eventoActivo.coordenadas) +
+			"&dates=" + ini + "/" + fin +
+			"&ctz=America/Argentina/Buenos_Aires" +
+			"&reminders=useDefault=false" +
+			"&reminders=minutes=10";
+		window.open(url, "_blank");
+	};
+
+	/* ===== ALARMAS ===== */
+	//const audio=document.getElementById("audio");
+
+	function limpiarAlarmasViejas(){
+		Object.keys(localStorage)
+		.filter(k=>k.startsWith("alarma"))
+		.forEach(k=>{
+		const a=JSON.parse(localStorage[k]);
+		if(Date.now()>a.timestamp+60000) localStorage.removeItem(k);
+		});
+	};
+
+	function guardarAlarma(){
+		const tsEvento = parseFecha(eventoActivo.dia, eventoActivo.hora);
+		const DIEZ_MIN = 10 * 60 * 1000;
+		const tsAlarma = tsEvento - DIEZ_MIN;
+		let idx = Number(localStorage.getItem("alarma_idx") || 0);
+		idx++;
+		localStorage.setItem("alarma_idx", idx);
+		localStorage.setItem(
+			"alarma_" + idx,
+			JSON.stringify({
+				timestamp: tsAlarma,     // ⏰ 10 minutos antes
+				evento: eventoActivo,
+				adelanto: 10             // info útil
+			})
+		);
+		alert("🔔 Alarma guardada (10 minutos antes)");
+	};
+
+	function detenerAlarma(){
+		audio.pause();
+		audio.currentTime = 0;
+		if (alarmaInterval) {
+			clearInterval(alarmaInterval);
+			alarmaInterval = null;
+		};
+		alarmaActiva = false;
+	};
+
+	setInterval(()=>{
+		Object.keys(localStorage)
+		.filter(k=>k.startsWith("alarma"))
+		.forEach(k=>{
+		const a=JSON.parse(localStorage[k]);
+		if(Date.now() >= a.timestamp){
+			if (!alarmaActiva) {
+			alarmaActiva = true;
+			audio.play();
+			navigator.vibrate?.([500,300,500]);
+			mostrarAvisoAlarma(a.evento);
+			if(Notification.permission==="granted"){
+				new Notification("Evento", { body: a.evento.evento });
+			}
+			// 🔁 repetir cada 20 segundos
+			alarmaInterval = setInterval(() => {
+				audio.currentTime = 0;
+				audio.play();
+				navigator.vibrate?.([500,300,500]);
+			}, 20000);
+			}
+			// la alarma ya fue tomada → eliminar del storage
+			localStorage.removeItem(k);
+		}
+		});
+	},5000);
+
+	BotonStands.onclick = () => {
+	  if (!panelesHabilitados()) return;
+	  mostrarModalInfo("🏪 Explorá los stands, buscá por nombre y mirá su ubicación.");
+	  PanelStands.classList.toggle("abierto");
+	  PanelEventos.classList.remove("abierto");
+	};
+
+	function renderStands(filtro = "") {
+		listaStands.innerHTML = "";
+		const texto = filtro.trim().toLowerCase();
+		stands
+		.filter(s =>
+		  s.nombre.toLowerCase().includes(texto) ||
+		  (s.lugar && s.lugar.toLowerCase().includes(texto))
+		)
+		.forEach(s => {
+			const b = document.createElement("button");
+			b.className = "stand-btn";
+			b.textContent = s.nombre;
+			b.onclick = () => {
+			const [lat, lng] = s.coordenadas.split(",").map(Number);
+			mapa.flyTo([lat, lng], 18);
+			L.marker([lat, lng]).addTo(mapa)
+			  .bindPopup(`<b>${s.nombre}</b><br>${s.lugar}`)
+			  .openPopup();
+			};
+			listaStands.appendChild(b);
+		});
+		// feedback si no hay resultados
+		if (!listaStands.children.length) {
+			listaStands.innerHTML = "<p style='text-align:center;opacity:.7'>Sin resultados</p>";
+		}
+	};
+	
+	buscadorStands.addEventListener("input", e => {
+		renderStands(e.target.value);
+	});
+	
+	// inicial
+	renderStands();
+
+	function inicioDia(fecha){
+		return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+	};
+	
+	function etiquetaFecha(diaStr){
+		const [dd,mm,yy] = diaStr.split("-");
+		const fechaEvento = inicioDia(new Date(2000+Number(yy), mm-1, dd));
+		const hoy = inicioDia(new Date());
+		const diff = (fechaEvento - hoy) / (1000*60*60*24);
+		const fecha=diaStr.replaceAll("-", "/");
+		if(diff === 0) return "Hoy ("+fecha+")";
+		if(diff === 1) return "Mañana ("+fecha+")";
+		if(diff === 2) return "Pasado mañana ("+fecha+")";
+		return diaStr; // fechas posteriores
+	};
+	
+	function guardarEventoYAlarma(){
+		crearCalendar();
+		guardarAlarma();
+	};
+	
+	function mostrarAvisoAlarma(evento){
+		const aviso = document.createElement("div");
+		aviso.id = "avisoAlarma";
+		aviso.innerHTML = `
+		<h2>🔔 ${evento.evento}</h2>
+		<p>Tocar para detener la alarma<br>y ver el recorrido</p>
+		`;
+		aviso.onclick = () => {
+			detenerAlarma();
+			aviso.remove();
+			trazarRuta();
+		};
+		document.body.appendChild(aviso);
+	};
+	
+	/* ===== INIT ===== */
+	limpiarAlarmasViejas();
+	cargarDias();
+	renderLista();
+	filtroDia.onchange=renderLista;
+	document.addEventListener("click", e => {
+
+		const clickPanelEventos =
+			PanelEventos.contains(e.target) || BotonEventos.contains(e.target);
+
+		const clickPanelStands =
+			PanelStands.contains(e.target) || BotonStands.contains(e.target);
+
+		const clickModalInfo =
+			modalInfo.contains(e.target);
+
+		if (
+			!clickPanelEventos &&
+			!clickPanelStands &&
+			!clickModalInfo
+		) {
+			PanelEventos.classList.remove("abierto");
+			PanelStands.classList.remove("abierto");
+			cerrarModal();
+		}
+	});
+	
+	document.addEventListener("keydown", function (event) {
+		if (event.key === "Escape") {
+			PanelEventos.classList.remove("abierto");
+			PanelStands.classList.remove("abierto");
+			cerrarModal();
+		}
+	});
+	
+	mapa.on("click", () => {
+		PanelEventos.classList.remove("abierto");
+		PanelStands.classList.remove("abierto");
+		cerrarModal();
+	});
+	
+	// ##########################################
+	// ### Bloque reservado para las muestras ###
+	// ##########################################
+
+	function fechaDesdeTxt(diaStr){
+		const [dd, mm, yy] = diaStr.split("-");
+		return SoloFecha(new Date(2000 + Number(yy), mm - 1, dd));
+	};
+	
+	function hayEventosVigentes(){
+		const hoy = SoloFecha(new Date());
+		return eventosmuestra.some(e => {
+			const fechaEvento = fechaDesdeTxt(e.dia);
+			return fechaEvento >= hoy;
+		});
+	};
+	
+	function SoloFecha(fecha) {
+		return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+	};
+	
+	const fechaInicio = new Date(2026, 01, 18); // diciembre (mes 11)
+	const fechaFin    = new Date(2026, 01, 20);
+	const hoy = SoloFecha(new Date());
+	if (hoy >= fechaInicio && hoy <= fechaFin && hayEventosVigentes()) {
+		BotonEventos.style.display = "block";
+		BotonStands.style.display = "block";
+	} else {
+		BotonEventos.style.display = "none";
+		BotonStands.style.display = "none";
+	};
+	
+	function panelesHabilitados(){
+		const hoy = SoloFecha(new Date());
+		return (
+			hoy >= fechaInicio &&
+			hoy <= fechaFin &&
+			hayEventosVigentes()
+		);
+	};
+	
+	if (panelesHabilitados()) {
+		BotonEventos.style.display = "block";
+		BotonStands.style.display  = "block";
+	} else {
+		BotonEventos.style.display = "none";
+		BotonStands.style.display  = "none";
+	};
+	
+	const modalInfo = document.getElementById("modalInfo");
+	const modalInfoTexto = document.getElementById("modalInfoTexto");
+
+	function mostrarModalInfo(texto){
+	  modalInfoTexto.textContent = texto;
+	  modalInfo.style.display = "flex";
+	};
+
+	function cerrarModalInfo(){
+	  modalInfo.style.display = "none";
+	};
+</script>
+</body>
+</html>

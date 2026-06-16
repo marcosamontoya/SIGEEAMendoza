@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Sitio en mantenimiento</title>
+		<style>
+			:root{
+			--bg:#0b1220;
+			--overlay: rgba(11,18,32,0.55);
+			--accent: #ffcc00;
+			--text: #ffffff;
+			--max-width: 1200px;
+			}
+
+			html,body{
+			height:100%;
+			margin:0;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+			background: var(--bg);
+			color: var(--text);
+			-webkit-font-smoothing:antialiased;
+			-moz-osx-font-smoothing:grayscale;
+			}
+
+			.page{
+			min-height:100vh;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			padding:2rem;
+			box-sizing:border-box;
+			position:relative;
+			overflow:hidden;
+			}
+
+			/* Imagen de fondo suave (opcional) */
+			.bg-image {
+			position:absolute;
+			inset:0;
+			background-image: url('images/Mantenimiento.jpg'); /* ← reemplaza por tu imagen */
+			background-size: cover;
+			background-position: center;
+			filter: blur(1px) saturate(0.85) brightness(0.6);
+			transform: scale(1.02);
+			z-index:0;
+			}
+
+			/* Capa oscura encima de la imagen para legibilidad */
+			.overlay {
+			position:absolute;
+			inset:0;
+			background: var(--overlay);
+			z-index:1;
+			}
+
+			.container{
+			position:relative;
+			z-index:2;
+			width:100%;
+			max-width: var(--max-width);
+			text-align:center;
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			gap:1.25rem;
+			padding:2rem;
+			box-sizing:border-box;
+			backdrop-filter: blur(0.3px);
+			}
+
+			/* Imagen principal (responsive) */
+			.hero-img{
+			width: min(90%, 900px);
+			max-height: 55vh;
+			object-fit: contain;
+			border-radius:12px;
+			box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+			}
+
+			/* Tipografía grande y fluida */
+			h1{
+			margin:0;
+			line-height:1;
+			letter-spacing: 0.02em;
+			/* clamp(min, preferred, max) para que sea fluida entre pantallas */
+			font-size: clamp(2rem, 6.5vw, 5rem);
+			text-transform: uppercase;
+			font-weight: 800;
+			-webkit-text-stroke: 0.6px rgba(0,0,0,0.15);
+			}
+
+			p.lead{
+			margin:0;
+			font-size: clamp(1rem, 3.2vw, 1.6rem);
+			opacity:0.95;
+			font-weight:600;
+			}
+
+			.small{
+			margin-top:.6rem;
+			font-size: clamp(.8rem, 2.3vw, 1rem);
+			opacity:.85;
+			}
+
+			/* Un pequeño acento (barra) */
+			.accent-bar{
+			width: clamp(60px, 8vw, 160px);
+			height: 6px;
+			background: linear-gradient(90deg, var(--accent), #ff9f1c);
+			border-radius:4px;
+			margin: 0.6rem auto;
+			box-shadow: 0 6px 18px rgba(255,204,0,0.12);
+			}
+
+			/* Animación simple */
+			.fade-up{
+			transform: translateY(12px);
+			opacity:0;
+			animation: fadeUp .9s cubic-bezier(.2,.9,.3,1) forwards;
+			}
+			.fade-up.delay{ animation-delay: .12s; }
+			.fade-up.delay-lg{ animation-delay: .22s; }
+
+			@keyframes fadeUp{
+			to { transform: translateY(0); opacity:1; }
+			}
+
+			/* Responsivo: en pantallas muy pequeñas reducir imagen para priorizar texto */
+			@media (max-width:520px){
+			.hero-img{ max-height:42vh; width:100%; border-radius:10px; }
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page" role="main" aria-labelledby="titulo-mantenimiento">
+			<div class="bg-image" aria-hidden="true"></div>
+			<div class="overlay" aria-hidden="true"></div>
+			<div class="container">
+				<!-- Imagen grande (reemplaza src por tu imagen preferida) -->
+				<img class="hero-img fade-up" src="images/Mantenimiento.jpg" alt="Página en mantenimiento" />
+				<h1 id="titulo-mantenimiento" class="fade-up delay">
+					SITIO EN MANTENIMIENTO
+				</h1>
+				<div class="accent-bar fade-up delay-lg" aria-hidden="true"></div>
+				<p class="lead fade-up delay-lg">
+					PRONTO VOLVERÁ A FUNCIONAR
+				</p>
+				<p class="small fade-up delay-lg" aria-hidden="false">
+					Disculpá las molestias. Estamos realizando mejoras para servirte mejor.
+				</p>
+				<p class="small fade-up delay-lg" aria-hidden="false">
+					Si querés contactarte con el administrador, hace click en este ícono:
+					<a href="mailto:cmauriciogodoy@gmail.com?subject=Soporte%20Técnico&body=Hola,%20tengo%20un%20problema%20con...">
+						<img src="images/Mail.png" alt="Contactar por email" style="width:40px; height:auto; cursor:pointer;">
+					</a>
+				</p>
+			</div>
+		</div>
+	</body>
+</html>

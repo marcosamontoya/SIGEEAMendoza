@@ -1,0 +1,8 @@
+var eventosmuestra=[
+ {evento:"Degustacion de vinos",lugar:"Bodega Experimental",coordenadas:"-33.005288795293566,-68.86529278855079",dia:"18-02-26",hora:"16:25"},
+ {evento:"Charla motivacional",lugar:"CR Mza.-SJ",coordenadas:"-33.00392117691456,-68.85816347732847",dia:"20-02-26",hora:"16:00"},
+ {evento:"Visita Guiada Huerta II",lugar:"HOE",coordenadas:"-33.0026525225648,-68.8639785843562",dia:"17-02-26",hora:"14:48"},
+ {evento:"Visita Guiada Huerta",lugar:"HOE",coordenadas:"-33.0026525119827,-68.86397850625562",dia:"19-02-26",hora:"20:06"},
+ {evento:"Visita Guiada Huerta II",lugar:"HOE",coordenadas:"-33.0026525225648,-68.8639785843562",dia:"18-02-26",hora:"20:05"},
+ {evento:"Visita Guiada Huerta II",lugar:"HOE",coordenadas:"-33.0026525225648,-68.8639785843562",dia:"20-02-26",hora:"14:45"}
+];

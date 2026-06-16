@@ -1,0 +1,147 @@
+/* Lista */
+.sugerenciasbusqueda {
+max-height: 340px;
+overflow-y: auto;
+padding: 10px;
+display: block;   /* 👉 cada item ocupa toda la fila */
+width: 100%;      /* 👉 ancho completo */
+}
+
+/* Items */
+.sugerenciasbusqueda {
+/*display: block; /* 👉 evita grid o flex */*/
+width: 100%;      /* 👉 ancho completo */
+flex-direction: column; /* 👉 una sola columna */
+padding: 12px 20px;   /* 👉 menos alto */
+min-height: auto;     /* 👉 que no fuerce altura */
+margin-bottom: 14px;
+font-size: 20px !important;
+line-height: 1.6;
+background-color: #e6f7ff !important;  /* celeste */
+border-radius: 12px;
+color: #007bff !important;             /* azul */
+cursor: pointer !important;            /* mano */
+transition: all 0.2s ease;
+display: flex;
+text-align: justify;   /* 👉 justificado real */
+}
+
+.sugerenciasbusqueda:hover {
+background-color: #cceeff !important;
+transform: scale(1.03);
+cursor: pointer !important;
+}
+
+@media (min-width: 768px) {
+.sugerenciasbusqueda{
+	font-size: 20px;
+	padding: 22px 20px;
+	min-height: 40px;
+}
+}
+<div class="fila">
+<div class="col-input">
+<input type="text" id="encontrar_a" class="animated-input" placeholder="¿Buscás algo o alguien?..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+<div id="ventanaSugerencias">
+<div id="headerSugerencias">
+	Sugerencias
+	<span id="cerrarSugerencias">✖</span>
+</div>
+<div id="sugerenciasbusqueda" class="sugerenciasbusqueda"></div>
+</div>
+</div>
+<div class="col-imagen">
+<!--<div id="ubicacion_texto" style="font-size:10px; text-align:right; background-color:lightblue; color:blue;width:80px"><strong>Mi ubicación</strong><a id="ubicacion_estado" href="javascript:activar_seguimiento(seguimiento)"><img id="gps" src="./images/slide_off.jpg" width="50" height="30"></img></a></div>-->
+<div id="ubicacion_texto" class="colorful-div" style="text-align:center;color:blue;"><strong>Mi ubicación</strong><a id="ubicacion_estado" href="javascript:activar_seguimiento(seguimiento)"><img id="gps" src="./images/slide_off.jpg" width="50" height="30"></img></a></div>
+</div>
+</div>
+<div class="sidebar-pane" id="mapita">
+	<h1 class="sidebar-header">Buscar...<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+	<br></br>
+	<p id="titulobuscarterritorio" class="lorem">Escribí o seleccioná el lugar o la persona...</p>
+	<input type="text" id="encontrar_abis" class="animated-input" placeholder="¿Buscás algo o alguien?..." autocomplete="off"/>
+	<div id="sugerenciasbusquedabis" class="sugerenciasbusqueda"></div>
+	</div>
+	<!--Bloque Busqueda Sectores, servicios, personas, especialidades Entrada Superior-->
+var inputbusqueda = document.getElementById('encontrar_a');
+const sugerenciaz = document.getElementById('sugerenciasbusqueda');
+inputbusqueda.addEventListener('input', () => {
+if (inputbusqueda.value.trim() === '') {
+inputbusqueda.classList.remove('filled');
+sugerenciaz.classList.add("ocultar");
+document.getElementById("ventanaSugerencias").classList.add("ocultar");
+};
+if (inputbusqueda.value.trim() !=="") {
+sugerenciaz.classList.remove("ocultar");
+document.getElementById("ventanaSugerencias").style.display = "block";
+if (!inputbusqueda.classList.contains('filled')) {
+	inputbusqueda.classList.add('filled');
+};
+const query = inputbusqueda.value.toLowerCase();
+sugerenciaz.innerHTML = '';
+if (query.length === 0) return;
+const resultados = listabusquedafiltrada
+.filter(item => typeof item === "string" && item.toLowerCase().includes(query))
+.slice(0,5); //Limitar a las primeras 5 coincidencias
+resultados.forEach(item => {
+	const div = document.createElement('div');
+	div.textContent = item;
+	div.classList.add('sugerencia-item');
+	div.addEventListener('click', () => {
+		inputbusqueda.value = item;
+		sugerenciaz.innerHTML = '';
+		barralateral.close();
+		document.getElementById("encontrar_a").value=item;
+		document.getElementById("encontrar_abis").value=item;
+		EncontrarA(item);
+	});
+	sugerenciaz.appendChild(div);
+});
+};
+//inputbusqueda.setSelectionRange(pos, pos);
+});
+document.addEventListener('click', function(e) {
+if (!sugerenciaz.contains(e.target) && e.target !== inputbusqueda) {
+sugerenciaz.innerHTML = '';
+document.getElementById("ventanaSugerencias").classList.add("ocultar");
+};
+});
+
+<!--Bloque Busqueda Sectores, servicios, personas, especialidades Entrada Barra Lateral-->
+var inputbusquedabis = document.getElementById('encontrar_abis');
+const sugerenciasbiz = document.getElementById('sugerenciasbusquedabis');
+inputbusquedabis.addEventListener('input', () => {
+if (inputbusquedabis.value.trim() === '') {
+inputbusquedabis.classList.remove('filled');
+sugerenciasbiz.classList.add("ocultar");
+};
+if (inputbusquedabis.value.trim() !=="") {
+sugerenciasbiz.classList.remove("ocultar");
+inputbusquedabis.classList.add('filled');
+const query = inputbusquedabis.value.toLowerCase();
+sugerenciasbiz.innerHTML = '';
+if (query.length === 0) return;
+const resultadosbis = listabusquedafiltrada
+.filter(item => typeof item === "string" && item.toLowerCase().includes(query))
+.slice(0,5); //Limitar a las primeras 5 coincidencias
+resultadosbis.forEach(item => {
+	const div = document.createElement('div');
+	div.textContent = item;
+	div.classList.add('sugerencia-item');
+	div.addEventListener('click', () => {
+		inputbusquedabis.value = item;
+		sugerenciasbiz.innerHTML = '';
+		barralateral.close();
+		document.getElementById("encontrar_a").value=item;
+		document.getElementById("encontrar_abis").value=item;
+		EncontrarA(item);
+	});
+	sugerenciasbiz.appendChild(div);
+});
+};
+});
+document.addEventListener('click', function(e) {
+if (!sugerenciasbiz.contains(e.target) && e.target !== inputbusquedabis) {
+sugerenciasbiz.innerHTML = '';
+};
+});

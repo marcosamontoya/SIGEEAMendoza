@@ -1,0 +1,8 @@
+const stands = [
+  { nombre:"Stand INTA", lugar:"Carpa Central", coordenadas:"-32.89,-68.83" },
+  { nombre:"Carpa Institucional", lugar:"Carpa Institucional", coordenadas:"-32.89,-68.83" },
+  { nombre:"Charla de Negocios", lugar:"Charla de Negocios", coordenadas:"-32.89,-68.83" },
+  { nombre:"Locución de Autoridades", lugar:"Locución de Autoridades", coordenadas:"-32.89,-68.83" },
+  { nombre:"Sorteos", lugar:"Sorteos", coordenadas:"-32.89,-68.83" },
+  { nombre:"Stand Vinos", lugar:"Galpón B", coordenadas:"-32.88,-68.84" }
+];
